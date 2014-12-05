@@ -75,6 +75,7 @@ struct file_handle;
 #include <linux/unistd.h>
 #include <linux/quota.h>
 #include <linux/key.h>
+#include <linux/gps.h>
 #include <trace/syscall.h>
 
 #define __SC_DECL1(t1, a1)	t1 a1
@@ -857,5 +858,5 @@ asmlinkage long sys_process_vm_writev(pid_t pid,
 				      const struct iovec __user *rvec,
 				      unsigned long riovcnt,
 				      unsigned long flags);
-
+asmlinkage long sys_location(struct gps_location __user *loc);
 #endif
