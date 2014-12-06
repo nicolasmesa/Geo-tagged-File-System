@@ -26,4 +26,9 @@ static inline int set_gps_location(struct gps_location *loc)
 	return syscall(__NR_set_gps_location, loc);
 }
 
+static inline int get_gps_location(char *pathname, struct gps_location *loc)
+{
+        return syscall(__NR_get_gps_location, pathname, loc);
+}
+
 #endif

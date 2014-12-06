@@ -1718,9 +1718,9 @@ retry:
 	if (!IS_ERR(inode)) {
 		inode->i_op = &ext3_file_inode_operations;
 		inode->i_fop = &ext3_file_operations;
+		inode->i_op->set_gps_location(inode);
 		ext3_set_aops(inode);
 		err = ext3_add_nondir(handle, dentry, inode);
-		inode->i_op->set_gps_location(inode);
 	}
 	ext3_journal_stop(handle);
 	if (err == -ENOSPC && ext3_should_retry_alloc(dir->i_sb, &retries))
@@ -2542,24 +2542,48 @@ int ext3_set_gps_location(struct inode *inode)
         inode_info->i_latitude = *(__u64 *)&loc_kern.location.latitude;
         inode_info->i_longitude = *(__u64 *)&loc_kern.location.longitude;
         inode_info->i_accuracy = *(__u32 *)&loc_kern.location.accuracy;
+	inode_info->i_coord_age = 100000;
 
         //inode_info->i_coord_age =
 
         raw_inode->i_latitude = cpu_to_le64(inode_info->i_latitude);
         raw_inode->i_longitude = cpu_to_le64(inode_info->i_longitude);
         raw_inode->i_accuracy = cpu_to_le32(inode_info->i_accuracy);
-
+	raw_inode->i_coord_age = cpu_to_le32(inode_info->i_coord_age);
 
         spin_unlock(&inode_info->gps_lock);
 
-        printk("Set gps\n");
+        printk("Set gps\nLatitude:%u", raw_inode->i_coord_age);
         return 0;
 }
 
-int ext3_get_gps_location(struct inode *dir, struct gps_location * loc)
+int ext3_get_gps_location(struct inode *inode, struct gps_location * loc)
 {
-        printk("Get gps\n");
-        return 0;
+	struct ext3_inode *raw_inode;
+	struct ext3_iloc iloc;
+	int error;
+	u64 param;
+	u32 param2;
+
+	error = ext3_get_inode_loc(inode, &iloc);
+
+	if (error)
+		return error;
+
+	raw_inode = ext3_raw_inode(&iloc);
+
+	param = le64_to_cpu(raw_inode->i_latitude);
+	loc->latitude = *(double *) &param;
+
+	param = le64_to_cpu(raw_inode->i_longitude);
+	loc->longitude = *(double *) &param;
+
+	param2 = le32_to_cpu(raw_inode->i_accuracy);
+	loc->accuracy = *(float *) &param2;
+
+	printk("Get gps\nAge:%u", raw_inode->i_coord_age);
+
+	return 0;
 }
 
 /*

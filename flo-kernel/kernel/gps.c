@@ -2,7 +2,9 @@
 #include <linux/gps.h>
 #include <linux/uaccess.h>
 #include <linux/spinlock.h>
-
+#include <linux/fs.h>
+#include <linux/err.h>
+#include <linux/namei.h>
 
 static struct gps_location_kern kernLocation;
  
@@ -36,6 +38,38 @@ SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 	return 0;
 }
 
+
+SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname, struct gps_location __user, *loc)
+{
+	struct path path;
+	struct inode *inode;
+	int res;
+	struct gps_location k_loc;
+
+	if (pathname == NULL)
+		return -EINVAL;
+
+	if (loc == NULL)
+		return -EINVAL;
+
+	res = user_path(pathname, &path);
+
+	if (res)
+		return -EINVAL;
+
+	inode = path.dentry->d_inode;
+
+	if (inode->i_op->get_gps_location != NULL)
+		inode->i_op->get_gps_location(inode, &k_loc);
+	else
+		return -EINVAL;
+
+	if (copy_to_user(loc, &k_loc, sizeof(*loc)))
+		return -EFAULT;
+
+	
+	return 0;
+}
 
 void getKernLocationValue (struct gps_location_kern *ptr)
 {
