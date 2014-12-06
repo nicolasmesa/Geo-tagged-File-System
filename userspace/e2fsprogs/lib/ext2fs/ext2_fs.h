@@ -59,7 +59,7 @@
 /*
  * The second extended file system magic number
  */
-#define EXT3_SUPER_MAGIC	0xEF53
+#define EXT3_SUPER_MAGIC	0xEF54
 #define EXT2_SUPER_MAGIC	EXT3_SUPER_MAGIC
 
 #ifdef __KERNEL__
@@ -417,7 +417,13 @@ struct ext2_inode {
 			__u32	h_i_author;
 		} hurd2;
 	} osd2;				/* OS dependent 2 */
-
+//Maybe add
+//	__u16  i_extra_isize;
+//	__u16  i_pad1;
+	__u64  i_latitude;
+        __u64  i_longitude;
+        __u32  i_accuracy;
+        __u32  i_coord_age;
 };
 
 /*

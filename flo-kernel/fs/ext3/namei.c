@@ -25,6 +25,7 @@
  */
 
 #include <linux/quotaops.h>
+#include <linux/gps.h>
 #include "ext3.h"
 #include "namei.h"
 #include "xattr.h"
@@ -1709,6 +1710,13 @@ retry:
 		handle->h_sync = 1;
 
 	inode = ext3_new_inode (handle, dir, &dentry->d_name, mode);
+	printk("Inode created\n");
+
+	if (dir->i_op->set_gps_location)
+		dir->i_op->set_gps_location(dir);
+	else
+		printk("NULL!!!!!\n");
+
 	err = PTR_ERR(inode);
 	if (!IS_ERR(inode)) {
 		inode->i_op = &ext3_file_inode_operations;
@@ -2506,6 +2514,18 @@ end_rename:
 	return retval;
 }
 
+int ext3_set_gps_location(struct inode *dir)
+{
+	printk("Set gps\n");
+	return 0;
+}
+
+int ext3_get_gps_location(struct inode *dir, struct gps_location * loc)
+{
+        printk("Get gps\n");
+        return 0;
+}
+
 /*
  * directories can handle most operations...
  */
@@ -2527,6 +2547,8 @@ const struct inode_operations ext3_dir_inode_operations = {
 	.removexattr	= generic_removexattr,
 #endif
 	.get_acl	= ext3_get_acl,
+        .set_gps_location = ext3_set_gps_location,
+        .get_gps_location = ext3_get_gps_location,
 };
 
 const struct inode_operations ext3_special_inode_operations = {

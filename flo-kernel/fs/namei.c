@@ -2072,8 +2072,10 @@ int vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	if (error)
 		return error;
 	error = dir->i_op->create(dir, dentry, mode, nd);
+
 	if (!error)
 		fsnotify_create(dir, dentry);
+
 	return error;
 }
 
