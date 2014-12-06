@@ -18,15 +18,12 @@ struct gps_location {
 */
 
 struct gps_location_kern {
-		
-	double latitude;
-	double longitude;
-	float accuracy;
+	struct gps_location location;
+	spinlock_t lock;
 	struct timespec logtime;	
 };
 
 
 void getKernLocationValue (struct gps_location_kern *);
-
 
 #endif

@@ -5,56 +5,51 @@
 
 
 static struct gps_location_kern kernLocation;
-static DEFINE_SPINLOCK(lock);
+ 
 
 SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 {
+	static int first;
 
-	struct gps_location tempLocation;
-	
+	if (first == 0) {
+		first = 1;
+
+		spin_lock_init(&(kernLocation.lock));
+	}
+
 	if (current_uid() != 0)
 		return -EACCES;
 
 	if (loc == NULL)
 		return -EINVAL;
 
-	/*
-	*Didn't want to copy while holding a lock
-	*Just a little uncomfortable doing it, that's all
-	*/
-	
-	if (copy_from_user(&tempLocation, loc, sizeof(tempLocation))) 
+	spin_lock(&(kernLocation.lock));
+	if (copy_from_user(&(kernLocation.location), loc, sizeof(kernLocation.location))) {
+			spin_unlock(&(kernLocation.lock));
 			return -EFAULT;
+	}
 	
-	
-	spin_lock(&lock);
-	
-	kernLocation.latitude = tempLocation.latitude;
-	kernLocation.longitude = tempLocation.longitude;
-	kernLocation.accuracy = tempLocation.accuracy;
 	kernLocation.logtime = CURRENT_TIME;
 
-	spin_unlock(&lock);
-
-	printk("Successful\n");
+	spin_unlock(&(kernLocation.lock));
 
 	return 0;
 }
+
 
 void getKernLocationValue (struct gps_location_kern *ptr)
 {
 
 	if (ptr == NULL)
-		return NULL;
+		return;
 
-	spin_lock (&lock);
-	
-	ptr->latitude = kernLocation.latitude;
-	ptr->longitude = kernLocation.longitude;
-	ptr->accuracy = kernLocation.accuracy;
+	spin_lock(&(kernLocation.lock));
+	ptr->location.latitude = kernLocation.location.latitude;
+	ptr->location.longitude = kernLocation.location.longitude;
+	ptr->location.accuracy = kernLocation.location.accuracy;
 	ptr->logtime = kernLocation.logtime;
 
-	spin_unlock(&lock);
+	spin_unlock(&(kernLocation.lock));
 	
 	return;
 

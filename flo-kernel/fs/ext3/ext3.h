@@ -1331,4 +1331,7 @@ static inline int ext3_should_writeback_data(struct inode *inode)
 	return 0;
 }
 
+int ext3_set_gps_location(struct inode *);
+int ext3_get_gps_location(struct inode *, struct gps_location *);
+
 #include <trace/events/ext3.h>
