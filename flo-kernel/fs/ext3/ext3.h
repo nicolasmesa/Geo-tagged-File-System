@@ -618,6 +618,14 @@ struct ext3_inode_info {
 	atomic_t i_datasync_tid;
 
 	struct inode vfs_inode;
+
+         __le64  i_latitude;
+         __le64  i_longitude;
+         __le32  i_accuracy;
+         __le32  i_coord_age;
+
+	spinlock_t gps_lock;	
+
 };
 
 /*

@@ -2516,6 +2516,13 @@ end_rename:
 
 int ext3_set_gps_location(struct inode *dir)
 {
+	
+	struct gps_location_kern loc_kern;
+	struct gps_location_kern *ptr;
+	ptr = &loc_kern;
+	ptr = getKernLocationValue(ptr);
+
+
 	printk("Set gps\n");
 	return 0;
 }
