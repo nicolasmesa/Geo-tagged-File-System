@@ -619,10 +619,10 @@ struct ext3_inode_info {
 
 	struct inode vfs_inode;
 
-         __le64  i_latitude;
-         __le64  i_longitude;
-         __le32  i_accuracy;
-         __le32  i_coord_age;
+         __u64  i_latitude;
+         __u64  i_longitude;
+         __u32  i_accuracy;
+         __u32  i_coord_age;
 
 	spinlock_t gps_lock;	
 

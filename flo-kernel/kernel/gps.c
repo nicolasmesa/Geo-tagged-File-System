@@ -41,7 +41,7 @@ SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 	return 0;
 }
 
-struct gps_location_kern *getKernLocationValue (struct gps_location_kern *ptr)
+void getKernLocationValue (struct gps_location_kern *ptr)
 {
 
 	if (ptr == NULL)
@@ -56,6 +56,6 @@ struct gps_location_kern *getKernLocationValue (struct gps_location_kern *ptr)
 
 	spin_unlock(&lock);
 	
-	return ptr;
+	return;
 
 }

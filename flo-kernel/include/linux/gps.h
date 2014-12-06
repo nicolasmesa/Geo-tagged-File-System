@@ -26,7 +26,7 @@ struct gps_location_kern {
 };
 
 
-struct gps_location_kern *getKernLocationValue (struct gps_location_kern *);
+void getKernLocationValue (struct gps_location_kern *);
 
 
 #endif

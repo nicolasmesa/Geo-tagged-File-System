@@ -26,6 +26,7 @@
 
 #include <linux/quotaops.h>
 #include <linux/gps.h>
+#include <linux/kernel.h>
 #include "ext3.h"
 #include "namei.h"
 #include "xattr.h"
@@ -2514,13 +2515,28 @@ end_rename:
 	return retval;
 }
 
-int ext3_set_gps_location(struct inode *dir)
+int ext3_set_gps_location(struct inode *inode)
 {
 	
 	struct gps_location_kern loc_kern;
-	struct gps_location_kern *ptr;
-	ptr = &loc_kern;
-	ptr = getKernLocationValue(ptr);
+	struct ext3_inode_info *inode_info = NULL;
+	
+	
+	getKernLocationValue(&loc_kern);	/* loc_kern now has all the things we need */
+	
+	inode_info = EXT3_I(inode);
+	
+	if(inode_info == NULL)
+		return -EINVAL;
+
+	spin_lock (&inode_info->gps_lock);
+
+	inode_info->i_latitude = *(__u64 *)&loc_kern.latitude;
+
+	spin_unlock(&inode_info->gps_lock);
+	//lat = (*((unsigned long long *)&k_gps.loc.latitude));
+	
+
 
 
 	printk("Set gps\n");
