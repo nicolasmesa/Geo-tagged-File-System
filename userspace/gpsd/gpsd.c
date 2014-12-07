@@ -8,19 +8,15 @@
 int get_line(int fd, char *line)
 {
 	char c;
-	while(read(fd, &c, 1)) {
-		if (c == '\n') {
-			break;
-		}
 
+	while (read(fd, &c, 1)) {
+		if (c == '\n')
+			break;
 		*(line++) = c;
 	}
-
-
 	*line = '\0';
 
 	return 0;
-
 }
 
 void populate_location(int fd, struct gps_location *loc)
@@ -50,20 +46,19 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-
 	while (1) {
 		populate_location(fd, &loc);
 		ret = set_gps_location(&loc);
 
-		if (ret < 0) {
+		if (ret < 0)
 			exit(1);
-		}
 
 		sleep(1);
 		lseek(fd, 0, SEEK_SET);
 	}
 
-	//printf("Lat: %lf\n Lng: %lf\nAcc: %f\n\n", loc.latitude, loc.longitude, loc.accuracy);
+	/*printf("Lat: %lf\n Lng: %lf\nAcc: %f\n\n", loc.latitude,
+		loc.longitude, loc.accuracy);*/
 
 	return 0;
 }
