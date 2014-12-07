@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 
 	ret = get_gps_location(argv[1], &loc);
 	
-	if (ret != 0) {
+	if (ret < 0) {
 
 	printf("Error: %s\n", strerror(errno));
 	printf("You probably entered a path in a different FS\n");
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
 	printf("Lat: %lf\t:Lng: %lf\tAcc: %f\n", loc.latitude,
                  loc.longitude, loc.accuracy);
-
+	printf("Age: %d\n", ret);
 	printf("URL: https://www.google.com/maps/@%f,%f,10z\n", loc.latitude, loc.longitude);
 
 	return 0;
