@@ -11,6 +11,8 @@ static struct gps_location_kern kernLocation;
 SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 {
 	static int first;
+	struct timespec time = CURRENT_TIME;
+	time_t seconds = time.tv_sec;
 
 	if (first == 0) {
 		first = 1;
@@ -30,7 +32,9 @@ SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 			spin_unlock(&(kernLocation.lock));
 			return -EFAULT;
 	}
-	kernLocation.logtime = CURRENT_TIME;
+	kernLocation.logtime = (unsigned int) seconds;
+
+	printk("Seconds = %u\n", kernLocation.logtime);
 	spin_unlock(&(kernLocation.lock));
 	return 0;
 }
@@ -58,14 +62,14 @@ SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname,
 	inode = path.dentry->d_inode;
 
 	if (inode->i_op->get_gps_location != NULL)
-		inode->i_op->get_gps_location(inode, &k_loc);
+		res= inode->i_op->get_gps_location(inode, &k_loc);
 	else
 		return -EINVAL;
 
 	if (copy_to_user(loc, &k_loc, sizeof(*loc)))
 		return -EFAULT;
 
-	return 0;
+	return res;
 }
 
 void getKernLocationValue(struct gps_location_kern *ptr)

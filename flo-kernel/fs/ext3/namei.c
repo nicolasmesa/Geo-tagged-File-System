@@ -2531,34 +2531,36 @@ end_rename:
 
 int ext3_set_gps_location(struct inode *inode)
 {
-	u32 age;
+	struct timespec time = CURRENT_TIME;
+        time_t seconds = time.tv_sec;
+	unsigned int current_time = (unsigned int)seconds;
 	struct gps_location_kern loc_kern;
-	struct ext3_inode_info *inode_info = NULL;
 	struct ext3_inode *raw_inode;
 	struct ext3_iloc iloc;
 	int error;
+	__u64 latitude;
+	__u64 longitude;
+	__u32 accuracy;
+	__u32 coord_age;
 
 	getKernLocationValue(&loc_kern);/*loc_kern now has all the things we need*/
-	inode_info = EXT3_I(inode);
-	if (inode_info == NULL)
-		return -EINVAL;
+
 	error = ext3_get_inode_loc(inode, &iloc);
 	if (error)
 		return error;
 
 	raw_inode = ext3_raw_inode(&iloc);
-	spin_lock(&inode_info->gps_lock);
-	inode_info->i_latitude = *(__u64 *)&loc_kern.location.latitude;
-	inode_info->i_longitude = *(__u64 *)&loc_kern.location.longitude;
-	inode_info->i_accuracy = *(__u32 *)&loc_kern.location.accuracy;
-	inode_info->i_coord_age = 100000;
-	raw_inode->i_latitude = cpu_to_le64(inode_info->i_latitude);
-	raw_inode->i_longitude = cpu_to_le64(inode_info->i_longitude);
-	raw_inode->i_accuracy = cpu_to_le32(inode_info->i_accuracy);
-	raw_inode->i_coord_age = cpu_to_le32(inode_info->i_coord_age);
+	latitude = *(__u64 *)&loc_kern.location.latitude;
+	longitude = *(__u64 *)&loc_kern.location.longitude;
+	accuracy = *(__u32 *)&loc_kern.location.accuracy;
+	coord_age = (__u32)(current_time - loc_kern.logtime);
 
-	spin_unlock(&inode_info->gps_lock);
-	printk("Set gps\nLatitude:%u", raw_inode->i_coord_age);
+	raw_inode->i_latitude = cpu_to_le64(latitude);
+	raw_inode->i_longitude = cpu_to_le64(longitude);
+	raw_inode->i_accuracy = cpu_to_le32(accuracy);
+	//raw_inode->i_coord_age = cpu_to_le32(coord_age);
+
+	//printk("Age: %u\n", coord_age);
 	return 0;
 }
 
@@ -2573,7 +2575,7 @@ int ext3_get_gps_location(struct inode *inode, struct gps_location *loc)
 	error = ext3_get_inode_loc(inode, &iloc);
 
 	if (error)
-		return error;
+		return -EINVAL;
 
 	raw_inode = ext3_raw_inode(&iloc);
 
@@ -2586,9 +2588,7 @@ int ext3_get_gps_location(struct inode *inode, struct gps_location *loc)
 	param2 = le32_to_cpu(raw_inode->i_accuracy);
 	loc->accuracy = *(float *) &param2;
 
-	printk("Get gps\nAge:%u", raw_inode->i_coord_age);
-
-	return 0;
+	return raw_inode->i_coord_age;
 }
 
 /*

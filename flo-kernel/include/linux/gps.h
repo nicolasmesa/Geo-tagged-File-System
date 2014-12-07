@@ -20,7 +20,7 @@ struct gps_location {
 struct gps_location_kern {
 	struct gps_location location;
 	spinlock_t lock;
-	struct timespec logtime;	
+	unsigned int logtime;
 };
 
 
