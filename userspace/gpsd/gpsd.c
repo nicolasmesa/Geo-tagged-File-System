@@ -4,6 +4,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 int get_line(int fd, char *line)
 {
@@ -33,11 +36,51 @@ void populate_location(int fd, struct gps_location *loc)
 	loc->accuracy = (float) strtod(line, NULL);
 }
 
+void daemonize()
+{
+
+    	pid_t pid;
+    
+	if((pid = fork()) < 0){
+        	perror("Fail fork");
+        	exit(EXIT_FAILURE);
+    	}
+    	
+	if(pid > 0)
+        	exit(EXIT_SUCCESS);
+    
+	if(setsid() < 0) {
+        	perror("Fail to setsid");
+       	 	exit(EXIT_FAILURE);
+    	}
+    	if((pid = fork()) < 0) {
+        
+		perror("Fail fork");
+        	exit(EXIT_FAILURE);
+    
+	}
+    
+	if(pid >0)
+		exit(EXIT_SUCCESS);
+    	
+	close(0);
+    	close(1);
+    	close(2);
+    	chdir("/data/misc/");
+    	umask(0);
+    	return ;
+
+
+}
+
+
 int main(int argc, char *argv[])
 {
 	struct gps_location loc;
 	int ret;
 	int fd;
+	
+	daemonize();
 
 	fd = open(GPS_LOCATION_FILE, O_RDONLY);
 
