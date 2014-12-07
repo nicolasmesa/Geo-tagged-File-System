@@ -34,7 +34,6 @@ SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 	}
 	kernLocation.logtime = (unsigned int) seconds;
 
-	printk("Seconds = %u\n", kernLocation.logtime);
 	spin_unlock(&(kernLocation.lock));
 	return 0;
 }
@@ -66,7 +65,6 @@ SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname,
 	else
 		return -EINVAL;
 
-	printk("Res: %d\n", res);
 
 	if (copy_to_user(loc, &k_loc, sizeof(*loc)))
 		return -EFAULT;
@@ -87,5 +85,5 @@ int getKernLocationValue(struct gps_location_kern *ptr)
 	ptr->logtime = kernLocation.logtime;
 	spin_unlock(&(kernLocation.lock));
 
-	return location_set;	
+	return location_set;
 }

@@ -427,7 +427,6 @@ void update_gps_date(struct file *file)
 		return;
 
 	inode->i_op->set_gps_location(inode);
-	printk("Called\n");
 }
 
 ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_t *pos)

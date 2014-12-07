@@ -36,41 +36,48 @@ void populate_location(int fd, struct gps_location *loc)
 	loc->accuracy = (float) strtod(line, NULL);
 }
 
-void daemonize()
+/*
+* Followed the process to daemonize
+* a function from the solutions
+* of one of the earlier homeworks.
+* Homework 3 - accelerationd.c to be
+* specific
+*/
+
+void daemonize(void)
 {
 
-    	pid_t pid;
-    
-	if((pid = fork()) < 0){
-        	perror("Fail fork");
-        	exit(EXIT_FAILURE);
-    	}
-    	
-	if(pid > 0)
-        	exit(EXIT_SUCCESS);
-    
-	if(setsid() < 0) {
-        	perror("Fail to setsid");
-       	 	exit(EXIT_FAILURE);
-    	}
-    	if((pid = fork()) < 0) {
-        
+	pid_t pid;
+
+	pid = fork();
+
+	if (pid < 0) {
 		perror("Fail fork");
-        	exit(EXIT_FAILURE);
-    
+		exit(EXIT_FAILURE);
 	}
-    
-	if(pid >0)
+
+	if (pid > 0)
 		exit(EXIT_SUCCESS);
-    	
+	if (setsid() < 0) {
+		perror("Fail to setsid");
+		exit(EXIT_FAILURE);
+	}
+
+	pid = fork();
+
+	if (pid < 0) {
+		perror("Fail fork");
+		exit(EXIT_FAILURE);
+	}
+
+	if (pid > 0)
+		exit(EXIT_SUCCESS);
+
 	close(0);
-    	close(1);
-    	close(2);
-    	chdir("/data/misc/");
-    	umask(0);
-    	return ;
-
-
+	close(1);
+	close(2);
+	chdir("/data/misc/");
+	umask(0);
 }
 
 
@@ -79,7 +86,7 @@ int main(int argc, char *argv[])
 	struct gps_location loc;
 	int ret;
 	int fd;
-	
+
 	daemonize();
 
 	fd = open(GPS_LOCATION_FILE, O_RDONLY);

@@ -7,24 +7,26 @@ int main(int argc, char **argv)
 	int ret;
 
 	if (argc < 2) {
-	
-	printf("Usage: %s <path to file>\n", argv[0]);
-	exit(1);
+
+		printf("Usage: %s <path to file>\n", argv[0]);
+		exit(1);
 	}
 
 	ret = get_gps_location(argv[1], &loc);
-	
+
 	if (ret < 0) {
 
-	printf("Error: %s\n", strerror(errno));
-	printf("You probably entered a path in a different FS\n");
-	exit (1);
+		printf("Error: %s\n", strerror(errno));
+		printf("You probably entered a path in a different FS\n");
+		exit(1);
 	}
 
-	printf("Lat: %lf\t:Lng: %lf\tAcc: %f\n", loc.latitude,
-                 loc.longitude, loc.accuracy);
+	printf("Latitude: %lf\tLongitude: %lf\tAccuracy: %f\n", loc.latitude,
+		loc.longitude, loc.accuracy);
 	printf("Age: %d\n", ret);
-	printf("URL: https://www.google.com/maps/@%f,%f,10z\n", loc.latitude, loc.longitude);
+
+	printf("URL: https://www.google.com/maps?&z=10&q=%f+-%f&ll=%f+%f\n",
+		loc.latitude, loc.longitude, loc.latitude, loc.longitude);
 
 	return 0;
 }

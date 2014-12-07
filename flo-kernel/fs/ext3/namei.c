@@ -2532,7 +2532,7 @@ end_rename:
 int ext3_set_gps_location(struct inode *inode)
 {
 	struct timespec time = CURRENT_TIME;
-        time_t seconds = time.tv_sec;
+	time_t seconds = time.tv_sec;
 	unsigned int current_time = (unsigned int)seconds;
 	struct gps_location_kern loc_kern;
 	struct ext3_inode *raw_inode;
@@ -2545,7 +2545,7 @@ int ext3_set_gps_location(struct inode *inode)
 	struct ext3_inode_info *inode_info = NULL;
 	int ret;
 
-	ret = getKernLocationValue(&loc_kern);/*loc_kern now has all the things we need*/
+	ret = getKernLocationValue(&loc_kern);
 
 	error = ext3_get_inode_loc(inode, &iloc);
 	if (error)
@@ -2563,7 +2563,6 @@ int ext3_set_gps_location(struct inode *inode)
 		accuracy = *(__u32 *)&loc_kern.location.accuracy;
 		coord_age = (__u32)(current_time - loc_kern.logtime);
 	}
-	
 
 	spin_lock(&inode_info->gps_lock);
 
