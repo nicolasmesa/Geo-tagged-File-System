@@ -2538,16 +2538,16 @@ int ext3_set_gps_location(struct inode *inode)
 	struct ext3_iloc iloc;
 	int error;
 
-	getKernLocationValue(&loc_kern);        /* loc_kern now has all the things we need */
+	getKernLocationValue(&loc_kern);/*loc_kern now has all the things we need*/
 	inode_info = EXT3_I(inode);
-	if(inode_info == NULL)
+	if (inode_info == NULL)
 		return -EINVAL;
 	error = ext3_get_inode_loc(inode, &iloc);
-	if (error) {
+	if (error)
 		return error;
-	}
+
 	raw_inode = ext3_raw_inode(&iloc);
-	spin_lock (&inode_info->gps_lock);
+	spin_lock(&inode_info->gps_lock);
 	inode_info->i_latitude = *(__u64 *)&loc_kern.location.latitude;
 	inode_info->i_longitude = *(__u64 *)&loc_kern.location.longitude;
 	inode_info->i_accuracy = *(__u32 *)&loc_kern.location.accuracy;
@@ -2562,7 +2562,7 @@ int ext3_set_gps_location(struct inode *inode)
 	return 0;
 }
 
-int ext3_get_gps_location(struct inode *inode, struct gps_location * loc)
+int ext3_get_gps_location(struct inode *inode, struct gps_location *loc)
 {
 	struct ext3_inode *raw_inode;
 	struct ext3_iloc iloc;
@@ -2612,8 +2612,8 @@ const struct inode_operations ext3_dir_inode_operations = {
 	.removexattr	= generic_removexattr,
 #endif
 	.get_acl	= ext3_get_acl,
-        .set_gps_location = ext3_set_gps_location,
-        .get_gps_location = ext3_get_gps_location,
+	.set_gps_location = ext3_set_gps_location,
+	.get_gps_location = ext3_get_gps_location,
 };
 
 const struct inode_operations ext3_special_inode_operations = {
