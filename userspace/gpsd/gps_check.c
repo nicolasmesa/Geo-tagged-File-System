@@ -16,11 +16,9 @@ int main(int argc, char *argv[])
 	}
 
 	ret = get_gps_location(argv[1], &loc);
-
-	printf("Lat: %lf\n:Lng: %lf\nAcc: %f\n\n", loc.latitude, loc.longitude, loc.accuracy);		
-
+	printf("Lat: %lf\n:Lng: %lf\nAcc: %f\n\n", loc.latitude,
+		loc.longitude, loc.accuracy);
 	printf("Ret: %d\n", ret);
-
 	return 0;
 }
 
