@@ -7,15 +7,15 @@
 #include <linux/namei.h>
 
 static struct gps_location_kern kernLocation;
+static int location_set;
 
 SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 {
-	static int first;
 	struct timespec time = CURRENT_TIME;
 	time_t seconds = time.tv_sec;
 
-	if (first == 0) {
-		first = 1;
+	if (location_set == 0) {
+		location_set = 1;
 
 		spin_lock_init(&(kernLocation.lock));
 	}
@@ -62,9 +62,11 @@ SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname,
 	inode = path.dentry->d_inode;
 
 	if (inode->i_op->get_gps_location != NULL)
-		res= inode->i_op->get_gps_location(inode, &k_loc);
+		res = inode->i_op->get_gps_location(inode, &k_loc);
 	else
 		return -EINVAL;
+
+	printk("Res: %d\n", res);
 
 	if (copy_to_user(loc, &k_loc, sizeof(*loc)))
 		return -EFAULT;
@@ -72,15 +74,18 @@ SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname,
 	return res;
 }
 
-void getKernLocationValue(struct gps_location_kern *ptr)
+/*
+ * The pointer must be valid
+ * Returns 1 if the location has been set and 0 otherwise
+ */
+int getKernLocationValue(struct gps_location_kern *ptr)
 {
-	if (ptr == NULL)
-		return;
-
 	spin_lock(&(kernLocation.lock));
 	ptr->location.latitude = kernLocation.location.latitude;
 	ptr->location.longitude = kernLocation.location.longitude;
 	ptr->location.accuracy = kernLocation.location.accuracy;
 	ptr->logtime = kernLocation.logtime;
 	spin_unlock(&(kernLocation.lock));
+
+	return location_set;	
 }
