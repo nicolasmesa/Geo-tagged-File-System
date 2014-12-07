@@ -1799,7 +1799,7 @@ retry:
 	inode->i_fop = &ext3_dir_operations;
 	inode->i_op->set_gps_location(inode);
 
-	if(dir->i_op->set_gps_location != NULL)
+	if (dir->i_op->set_gps_location != NULL)
 		dir->i_op->set_gps_location(dir);
 
 	inode->i_size = EXT3_I(inode)->i_disksize = inode->i_sb->s_blocksize;
@@ -2184,8 +2184,7 @@ static int ext3_unlink(struct inode * dir, struct dentry *dentry)
 	if (retval)
 		goto end_unlink;
 	dir->i_ctime = dir->i_mtime = CURRENT_TIME_SEC;
-	ext3_update_dx_flag(dir);	
-
+	ext3_update_dx_flag(dir);
 	if (dir->i_op->set_gps_location != NULL)
 		dir->i_op->set_gps_location(dir);
 
@@ -2532,47 +2531,35 @@ end_rename:
 
 int ext3_set_gps_location(struct inode *inode)
 {
-        u32 age;
-        struct gps_location_kern loc_kern;
-        struct ext3_inode_info *inode_info = NULL;
-        struct ext3_inode *raw_inode;
-        struct ext3_iloc iloc;
-        int error;
+	u32 age;
+	struct gps_location_kern loc_kern;
+	struct ext3_inode_info *inode_info = NULL;
+	struct ext3_inode *raw_inode;
+	struct ext3_iloc iloc;
+	int error;
 
-        getKernLocationValue(&loc_kern);        /* loc_kern now has all the things we need */
-
-        inode_info = EXT3_I(inode);
-
-        if(inode_info == NULL)
-                return -EINVAL;
-
-
-        error = ext3_get_inode_loc(inode, &iloc);
-
-        if (error) {
-                return error;
-        }
-
-        raw_inode = ext3_raw_inode(&iloc);
-
-        spin_lock (&inode_info->gps_lock);
-
-        inode_info->i_latitude = *(__u64 *)&loc_kern.location.latitude;
-        inode_info->i_longitude = *(__u64 *)&loc_kern.location.longitude;
-        inode_info->i_accuracy = *(__u32 *)&loc_kern.location.accuracy;
+	getKernLocationValue(&loc_kern);        /* loc_kern now has all the things we need */
+	inode_info = EXT3_I(inode);
+	if(inode_info == NULL)
+		return -EINVAL;
+	error = ext3_get_inode_loc(inode, &iloc);
+	if (error) {
+		return error;
+	}
+	raw_inode = ext3_raw_inode(&iloc);
+	spin_lock (&inode_info->gps_lock);
+	inode_info->i_latitude = *(__u64 *)&loc_kern.location.latitude;
+	inode_info->i_longitude = *(__u64 *)&loc_kern.location.longitude;
+	inode_info->i_accuracy = *(__u32 *)&loc_kern.location.accuracy;
 	inode_info->i_coord_age = 100000;
-
-        //inode_info->i_coord_age =
-
-        raw_inode->i_latitude = cpu_to_le64(inode_info->i_latitude);
-        raw_inode->i_longitude = cpu_to_le64(inode_info->i_longitude);
-        raw_inode->i_accuracy = cpu_to_le32(inode_info->i_accuracy);
+	raw_inode->i_latitude = cpu_to_le64(inode_info->i_latitude);
+	raw_inode->i_longitude = cpu_to_le64(inode_info->i_longitude);
+	raw_inode->i_accuracy = cpu_to_le32(inode_info->i_accuracy);
 	raw_inode->i_coord_age = cpu_to_le32(inode_info->i_coord_age);
 
-        spin_unlock(&inode_info->gps_lock);
-
-        printk("Set gps\nLatitude:%u", raw_inode->i_coord_age);
-        return 0;
+	spin_unlock(&inode_info->gps_lock);
+	printk("Set gps\nLatitude:%u", raw_inode->i_coord_age);
+	return 0;
 }
 
 int ext3_get_gps_location(struct inode *inode, struct gps_location * loc)
