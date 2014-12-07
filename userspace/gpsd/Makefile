@@ -17,6 +17,6 @@ all: gpsd gps_check
 clean:
 	rm -f gpsd 
 	rm -f gpsd.o
-	rm -r gps_check.o
-
+	rm -f gps_check.o
+	rm -f gps_check 
 .PHONY: clean
