@@ -618,7 +618,6 @@ struct ext3_inode_info {
 	atomic_t i_datasync_tid;
 
 	struct inode vfs_inode;
-	
 	__u64  i_latitude;
 	__u64  i_longitude;
 	__u32  i_accuracy;
