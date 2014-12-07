@@ -7,7 +7,6 @@
 #include <linux/namei.h>
 
 static struct gps_location_kern kernLocation;
- 
 
 SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 {
@@ -26,20 +25,19 @@ SYSCALL_DEFINE1(set_gps_location, struct gps_location __user, *loc)
 		return -EINVAL;
 
 	spin_lock(&(kernLocation.lock));
-	if (copy_from_user(&(kernLocation.location), loc, sizeof(kernLocation.location))) {
+	if (copy_from_user(&(kernLocation.location), loc,
+		sizeof(kernLocation.location))) {
 			spin_unlock(&(kernLocation.lock));
 			return -EFAULT;
 	}
-	
 	kernLocation.logtime = CURRENT_TIME;
-
 	spin_unlock(&(kernLocation.lock));
-
 	return 0;
 }
 
 
-SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname, struct gps_location __user, *loc)
+SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname,
+	struct gps_location __user, *loc)
 {
 	struct path path;
 	struct inode *inode;
@@ -67,13 +65,11 @@ SYSCALL_DEFINE2(get_gps_location, const char __user, *pathname, struct gps_locat
 	if (copy_to_user(loc, &k_loc, sizeof(*loc)))
 		return -EFAULT;
 
-	
 	return 0;
 }
 
-void getKernLocationValue (struct gps_location_kern *ptr)
+void getKernLocationValue(struct gps_location_kern *ptr)
 {
-
 	if (ptr == NULL)
 		return;
 
@@ -82,9 +78,5 @@ void getKernLocationValue (struct gps_location_kern *ptr)
 	ptr->location.longitude = kernLocation.location.longitude;
 	ptr->location.accuracy = kernLocation.location.accuracy;
 	ptr->logtime = kernLocation.logtime;
-
 	spin_unlock(&(kernLocation.lock));
-	
-	return;
-
 }
