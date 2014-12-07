@@ -33,6 +33,8 @@ const struct inode_operations ext3_symlink_inode_operations = {
 	.follow_link	= page_follow_link_light,
 	.put_link	= page_put_link,
 	.setattr	= ext3_setattr,
+	.set_gps_location = ext3_set_gps_location,
+	.get_gps_location = ext3_get_gps_location,
 #ifdef CONFIG_EXT3_FS_XATTR
 	.setxattr	= generic_setxattr,
 	.getxattr	= generic_getxattr,
@@ -45,6 +47,8 @@ const struct inode_operations ext3_fast_symlink_inode_operations = {
 	.readlink	= generic_readlink,
 	.follow_link	= ext3_follow_link,
 	.setattr	= ext3_setattr,
+	.set_gps_location = ext3_set_gps_location,
+	.get_gps_location = ext3_get_gps_location,
 #ifdef CONFIG_EXT3_FS_XATTR
 	.setxattr	= generic_setxattr,
 	.getxattr	= generic_getxattr,

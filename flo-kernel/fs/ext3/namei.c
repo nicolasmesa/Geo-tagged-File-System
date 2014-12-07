@@ -1712,13 +1712,15 @@ retry:
 		handle->h_sync = 1;
 
 	inode = ext3_new_inode (handle, dir, &dentry->d_name, mode);
-	printk("Inode created\n");
 
 	err = PTR_ERR(inode);
 	if (!IS_ERR(inode)) {
 		inode->i_op = &ext3_file_inode_operations;
 		inode->i_fop = &ext3_file_operations;
 		inode->i_op->set_gps_location(inode);
+
+		if (dir->i_op->set_gps_location != NULL)
+			dir->i_op->set_gps_location(dir);
 		ext3_set_aops(inode);
 		err = ext3_add_nondir(handle, dentry, inode);
 	}
@@ -1795,6 +1797,11 @@ retry:
 
 	inode->i_op = &ext3_dir_inode_operations;
 	inode->i_fop = &ext3_dir_operations;
+	inode->i_op->set_gps_location(inode);
+
+	if(dir->i_op->set_gps_location != NULL)
+		dir->i_op->set_gps_location(dir);
+
 	inode->i_size = EXT3_I(inode)->i_disksize = inode->i_sb->s_blocksize;
 	dir_block = ext3_bread (handle, inode, 0, 1, &err);
 	if (!dir_block)
@@ -2123,6 +2130,10 @@ static int ext3_rmdir (struct inode * dir, struct dentry *dentry)
 	ext3_mark_inode_dirty(handle, inode);
 	drop_nlink(dir);
 	ext3_update_dx_flag(dir);
+
+	if (dir->i_op->set_gps_location != NULL)
+		dir->i_op->set_gps_location(dir);
+
 	ext3_mark_inode_dirty(handle, dir);
 
 end_rmdir:
@@ -2173,7 +2184,11 @@ static int ext3_unlink(struct inode * dir, struct dentry *dentry)
 	if (retval)
 		goto end_unlink;
 	dir->i_ctime = dir->i_mtime = CURRENT_TIME_SEC;
-	ext3_update_dx_flag(dir);
+	ext3_update_dx_flag(dir);	
+
+	if (dir->i_op->set_gps_location != NULL)
+		dir->i_op->set_gps_location(dir);
+
 	ext3_mark_inode_dirty(handle, dir);
 	drop_nlink(inode);
 	if (!inode->i_nlink)
@@ -2238,6 +2253,7 @@ retry:
 
 	if (l > EXT3_N_BLOCKS * 4) {
 		inode->i_op = &ext3_symlink_inode_operations;
+		inode->i_op->set_gps_location(inode);
 		ext3_set_aops(inode);
 		/*
 		 * We cannot call page_symlink() with transaction started
@@ -2278,9 +2294,11 @@ retry:
 		}
 	} else {
 		inode->i_op = &ext3_fast_symlink_inode_operations;
+		inode->i_op->set_gps_location(inode);
 		memcpy((char*)&EXT3_I(inode)->i_data,symname,l);
 		inode->i_size = l-1;
 	}
+
 	EXT3_I(inode)->i_disksize = inode->i_size;
 	err = ext3_add_nondir(handle, dentry, inode);
 out_stop:

@@ -7,5 +7,5 @@ adb shell ln -s /dev/block/loop4 /dev/loop4
 adb shell ln -s /dev/block/loop5 /dev/loop5
 adb shell ln -s /dev/block/loop6 /dev/loop6
 adb shell ln -s /dev/block/loop7 /dev/loop7
-#adb push hmwk6.fs /data/misc
+adb push hmwk6.fs /data/misc
 adb shell mount -o loop -t ext3 /data/misc/hmwk6.fs /data/misc/hmwk6
