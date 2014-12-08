@@ -1,0 +1,48 @@
+COMS W4118 - Homework 6
+Team 23
+
+Nicolas Mesa, Di Ruan, Sankalp Singayapally
+
+This assignment makes changes to the linux ext3 filesystem to enable the coordinates of the device to be saved to disk.
+Whenever a file/directory/link is created, the coordinates of the device are saved into the inode of the disk. 
+
+For testing purposes, we have created a filesystem 2MB in size and in it, there is a directory and a file and the 
+directory holds another file. 
+
+To test this, please compile our kernel, flash it to the device. Once the device has fully booted, please run
+links.sh script and the filesystem will have been mounted to /data/misc/hmwk6 directory. All FS operations
+should be functional in this filesystem. To check the coordinates of the file, please run file_loc with the
+path to the file as an argument. 
+
+The following is a sample output that we used to test.
+
+/file_loc ./hmwk6/dir1:
+
+Latitude: 40.808906	Longitude: -73.960621	Accuracy: 57.974998
+Age: 0
+URL: https://www.google.com/maps?&z=10&q=40.808906+--73.960621&ll=40.808906+-73.960621
+
+./file_loc ./hmwk6/file1:
+Latitude: 40.808905	Longitude: -73.960608	Accuracy: 46.821999
+Age: 0
+URL: https://www.google.com/maps?&z=10&q=40.808905+--73.960608&ll=40.808905+-73.960608
+
+./file_loc ./hmwk6/file1 (after killing daemon and not updating data)
+Latitude: 40.808905	Longitude: -73.960588	Accuracy: 45.467999
+Age: 16
+URL: https://www.google.com/maps?&z=10&q=40.808905+--73.960588&ll=40.808905+-73.960588
+
+/file_loc ./hmwk6/dir1/file2 -- This was done at Nicolas' home                                                 
+Latitude: 40.780837	Longitude: -73.972780	Accuracy: 21.190001
+Age: 1
+URL: https://www.google.com/maps?&z=10&q=40.780837+--73.972780&ll=40.780837+-73.972780
+
+The age of the coordinates is updated accordingly and shown in seconds and the Google Maps link that is generated can
+be pasted into the browser for viewing the location on Google Maps. 
+
+Sources:
+
+1. Code for the daemon was used from the solution of HW3 from reviewboard. 
+
+2. http://www.bruceblinn.com/linuxinfo/ByteOrder.html as a reference for the functions/macros that maintain the byte order
+in the linux kernel.
